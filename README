@@ -1,0 +1,21 @@
+############################## Halite III - Team WeGotThis ####################
+
+We elaborated more strategies in order to collect efficiently halite from the map,
+depending on the map's resources, map's size or the opponent's behaviour.
+
+Project structure:
+-- maximum halite collecting from the map, by cretaing drop-offs on the zone 
+with the most halite, but only after spawning 9 ships and collecting at least
+5001 halite.
+
+-- at the end of the game, we choose to get the ships to the shipyard, because
+it seems that it's no worth in collecting any more halite.
+Depending on the game map sizes we go to the shipyard at round 350 (32x32) / 
+round 360 (40x40 or 48x48) / round 430 (56x56).
+
+-- we choose to spawn no more than 15 ships.
+
+-- we choose to get the ships to the shipyard / dropOff when they collect at certain
+percent of halite, depending on the round or map type (0.9 collecting at first, 
+then 0.6 at the end for 32x32 & 56x56or 0.4 for 40x40 & 48x48), 
+using method "goToDepo".
