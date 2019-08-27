@@ -20,18 +20,17 @@ public class MyBot {
         game.ready("MyJavaBot");
         Log.log("Successfully created bot! My Player ID is " + game.myId + ". Bot rng seed is " + rngSeed + ".");
 
-        /**
-         * retinem pozitia anterioara a navei pt a nu merge prin acelasi loc.
-         */
+      
+         // remembering the previous ship position to avoid going in the same spot       
         ArrayList<Position> lastPos = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             lastPos.add(i, new Position(-Integer.MAX_VALUE, -Integer.MAX_VALUE));
         }
 
         /**
-         * Fiecare nava va avea un status, acesta fiind de "collecting",
-         * "depositing", "IWillDrop" sau "dropping",
-         * initial toate navele pe collecting.
+         * Each ship will have a status: "collecting",
+         * "depositing", "IWillDrop" or "dropping",
+         * Initilizing all ships on collecting.
          */
         String[] shipStates = new String[100];
         for (int i = 0; i < 100; i++) {
@@ -39,8 +38,8 @@ public class MyBot {
         }
 
         /**
-         * pozitionare dropoff pe portiunea cu max halite de pe harta
-         * sau in sudul hartii.
+         * DropOff position on the spot with maximum halite on the map
+         * or in the south of the map.
          */
         SubMap div = new SubMap(0, 0, 0, 0, 0);
         ArrayList<SubMap> HALITE = new ArrayList<>();
@@ -67,10 +66,8 @@ public class MyBot {
             final GameMap gameMap = game.gameMap;
             Position p = new Position(me.shipyard.position.x + 1, me.shipyard.position.y);
             final ArrayList<Command> commandQueue = new ArrayList<>();
-            /**
-             * Vector cu orientarile cardinale posibile, inclusiv
-             * optiunea de a sta pe loc.
-             */
+            
+            // possible cardinal points, including stay still.
             ArrayList<Direction> directionOrder = new ArrayList<>();
             directionOrder.add(Direction.NORTH);
             directionOrder.add(Direction.SOUTH);
@@ -79,9 +76,7 @@ public class MyBot {
             directionOrder.add(Direction.STILL);
 
             for (final Ship ship : me.ships.values()) {
-                /**
-                 * evitare sa intre vreun inamic in shipyard
-                 */
+                 // avoiding an enemy entering our shipyard
                 if (gameMap.width == 32) {
                     if (round >= 50 && me.halite <= 100) {
                         if (ship.position.equals(p)) {
@@ -90,27 +85,19 @@ public class MyBot {
                         }
                     }
                 }
-                /**
-                 *Coordonatele posibile ale unei nave de a avansa
-                 *in diferite directii.
-                 */
-
+                // possible coords of a ship to progress in another direction
                 ArrayList<Position> positionOptions = new ArrayList<>();
                 positionOptions = ship.position.getSurroundingCardinals();
                 positionOptions.add(ship.position);
-                /**
-                 * haliteAmoutList - cu halitele maxim de
-                 * dimensiune 5 pt N, S, E, V si locatia curenta.
-                 */
+                
+                // list with maximum halite of size = 5: N, S, V, E, current location.
                 ArrayList<Integer> haliteAmountList = new ArrayList<>();
                 for (int i = 0; i < directionOrder.size(); i++) {
                     haliteAmountList.add(i, -1);
                 }
-                /**
-                 * Verificam daca fiecare pozitie in parte este ocupata sau
-                 * nu de catre o alta nava. 0 - daca e ocupata.
-                 * Si sa nu mearga in acelasi loc de 2 ori.
-                 */
+                // check if each position is occupied or not by another ship.
+                // encoding: 0 - occupied.
+                // It should not go on the same spot twice
                 for (int i = 0; i < directionOrder.size(); i++) {
                     if ((!gameMap.at(positionOptions.get(i)).isOccupied())
                             && (!lastPos.get(ship.id.id).equals(positionOptions.get(i)))) {
@@ -120,10 +107,8 @@ public class MyBot {
                         haliteAmountList.add(i, 0);
                     }
                 }
-                /**
-                 * Indexul corespunzator valorii de halite maxima, pentru a
-                 * naviga inspre acel loc.
-                 */
+
+                // The corresponding index of the max halite value to go into the same spot
                 int maxHalite = java.util.Collections.max(haliteAmountList);
                 int index = -1;
                 for (int i = 0; i < directionOrder.size(); i++) {
@@ -131,9 +116,8 @@ public class MyBot {
                         index = i;
                     }
                 }
-                /**
-                 * Verificare starea navei si modificare status.
-                 */
+                
+                // Check ship status and update it.
                 if (shipStates[ship.id.id].equals("dropping")) {
                     commandQueue.add(ship.move(gameMap.naiveNavigate(ship, posDrop)));
                     if (ship.position.equals(posDrop)) {
@@ -148,10 +132,9 @@ public class MyBot {
                     shipStates[ship.id.id] = "NULL";
                     continue;
                 }
-                /**
-                 * intra navele in shipyard in rundele finale pt a aduce ultimele halite colectat
-                 * iar in celelalte runde colecteaza in dropOff sau shipyard.
-                 */
+
+                // Ships enter the shipyard in the final round to gathe final collected halite.
+                // Next rounds are for collecting in dropOff or shipyard.
                 if (shipStates[ship.id.id].equals("depositing")) {
                     if (weHaveDrop == 0) {
                         commandQueue.add(ship.move(gameMap.naiveNavigate(ship, me.shipyard.position)));
@@ -200,9 +183,7 @@ public class MyBot {
                 }
             }
 
-            /**
-             * Spawn de nave in functie de dimensiunea hartii.
-             */
+            // Ship spawn depending on the map dimension.
             if (game.turnNumber <= 200 && me.halite >= Constants.SHIP_COST && !gameMap.at(me.shipyard).isOccupied()) {
                 if (weHaveDrop == 1) {
                     Strategy.spawnMapSize(gameMap, me, commandQueue);
