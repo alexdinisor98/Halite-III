@@ -4,7 +4,7 @@ We elaborated more strategies in order to collect efficiently halite from the ma
 depending on the map's resources, map's size or the opponent's behaviour.
 
 Project structure:
--- maximum halite collecting from the map, by cretaing drop-offs on the zone 
+-- maximum halite collecting from the map, by creating drop-offs on the zone 
 with the most halite, but only after spawning 9 ships and collecting at least
 5001 halite.
 
@@ -15,7 +15,7 @@ round 360 (40x40 or 48x48) / round 430 (56x56).
 
 -- we choose to spawn no more than 15 ships.
 
--- we choose to get the ships to the shipyard / dropOff when they collect at certain
+-- we choose to get the ships to the shipyard / dropOff when they collect certain
 percent of halite, depending on the round or map type (0.9 collecting at first, 
 then 0.6 at the end for 32x32 & 56x56or 0.4 for 40x40 & 48x48), 
 using method "goToDepo".
